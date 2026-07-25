@@ -704,42 +704,47 @@ Nikmati berbagai penawaran & fitur terbaik:
   <button onclick="tutupVideoIklan()" style="margin-top:5px; background:red; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">Tutup Iklan</button>
 </div>
 
-
 <!-- ============================================== -->
-<!-- BAGIAN 2: PEMUTAR VIDEO & MUSIK MP3 DARI HP (FITUR PLAYLIST) -->
+<!-- BAGIAN 2: PEMUTAR VIDEO & MUSIK MP3 DARI HP (FITUR PLAYLIST - STICKY MINI BAR) -->
 <!-- ============================================== -->
 <div style="text-align:center; padding:15px;">
-  <!-- Input tersembunyi khusus HP (Bisa pilih banyak, Video & MP3) -->
+  <!-- Input tersembunyi khusus HP -->
   <input type="file" id="fileInput" accept="video/*,audio/*" multiple onchange="loadFiles(this)" style="display:none;">
   
   <!-- Tombol Pilih File HP -->
   <button class="btn-tambah" onclick="document.getElementById('fileInput').click()" style="font-size:16px; padding:12px;">
     📂 Putar Video / MP3 Dari HP-mu
   </button>
-
-  <!-- Container Pemutar HP (Awalnya tersembunyi) -->
-  <div id="playerContainer" style="background:#111; padding:15px; border-radius:10px 10px 0 0; margin-top:15px; color:white; display:none; position:fixed; bottom:0; left:0; width:100%; z-index:9999; box-shadow:0 -2px 10px rgba(0,0,0,0.5);">
-    
-    <h4 id="playerTitle" style="margin:0 0 10px 0; color:#fff;">🎵 Media Player</h4>
-    
-    <!-- Area Video HP -->
-    <video id="videoPlayer" controls playsinline style="width:100%; border-radius:8px; display:none;"></video>
-    
-    <!-- Area Audio HP -->
-    <div id="audioWrapper" style="background:#222; padding:15px; border-radius:8px; display:none;">
-      <audio id="audioPlayer" controls style="width:100%;"></audio>
-    </div>
-
-    <!-- Navigasi Next / Prev -->
-    <div id="playerNav" style="margin-top:15px; display:none; justify-content:center; align-items:center;">
-      <button onclick="prevMedia()" style="padding:8px 15px; border:none; border-radius:5px; background:#555; color:white; cursor:pointer;">⏮ Prev</button>
-      <span id="mediaCounter" style="margin:0 10px; font-size:14px;">1 / 1</span>
-      <button onclick="nextMedia()" style="padding:8px 15px; border:none; border-radius:5px; background:#555; color:white; cursor:pointer;">Next ⏭</button>
-    </div>
-    
-    <p style="font-size:11px; color:#aaa; margin-top:15px; margin-bottom:0;">💡 Tip: Install ALFA di Home Screen agar musik tetap nyala saat layar mati!</p>
-  </div>
 </div>
+
+<!-- STICKY PLAYER (Posisi melayang di bawah layar) -->
+<div id="playerContainer" style="display:none; position:fixed; bottom:0; left:0; width:100%; z-index:9999; padding:10px; box-sizing:border-box;">
+  
+  <!-- INNER BOX (Kotak hitam yang isinya player) -->
+  <div id="playerInnerBox" style="background:#222; border-radius:12px; padding:10px; color:white; box-shadow:0 -4px 15px rgba(0,0,0,0.6);">
+    
+    <h4 id="playerTitle" style="margin:0 0 5px 0; font-size:14px; color:#fff;">🎵 Media Player</h4>
+    
+    <!-- Area Video -->
+    <video id="videoPlayer" controls playsinline style="width:100%; max-height:200px; border-radius:8px; display:none; background:#000;"></video>
+    
+    <!-- Area Audio -->
+    <div id="audioWrapper" style="display:none;">
+      <audio id="audioPlayer" controls style="width:100%; height:35px;"></audio>
+    </div>
+
+    <!-- Navigasi Prev / Next / Close -->
+    <div id="playerNav" style="margin-top:8px; display:none; justify-content:center; align-items:center; font-size:12px;">
+      <button onclick="prevMedia()" style="padding:4px 12px; border:none; border-radius:20px; background:#555; color:white; cursor:pointer; font-size:12px;">⏮ Prev</button>
+      <span id="mediaCounter" style="margin:0 10px;">1 / 1</span>
+      <button onclick="nextMedia()" style="padding:4px 12px; border:none; border-radius:20px; background:#555; color:white; cursor:pointer; font-size:12px;">Next ⏭</button>
+      <button onclick="tutupPlayer()" style="padding:4px 10px; border:none; border-radius:20px; background:red; color:white; cursor:pointer; font-weight:bold; margin-left:5px;">✕</button>
+    </div>
+    
+    <p id="playerTip" style="font-size:10px; color:#aaa; margin-top:5px; margin-bottom:0;">⚠️ Jangan swipe-close Chrome agar musik tetap nyala</p>
+
+  </div> <!-- End Inner Box -->
+</div> <!-- End Container Utama -->
   
   <!-- KOTAK INPUT RATING & TESTIMONI -->
 <div class="testimoni-box" style="background: white; padding: 20px; border-radius: 15px; margin: 20px auto; max-width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
@@ -1283,34 +1288,52 @@ function playMedia(index) {
   const playerTitle = document.getElementById('playerTitle');
   const playerNav = document.getElementById('playerNav');
   const mediaCounter = document.getElementById('mediaCounter');
+  const innerBox = document.getElementById('playerInnerBox');
+  const tipText = document.getElementById('playerTip');
 
-  // Reset
+  // Reset semua dulu
   videoPlayer.pause(); videoPlayer.style.display = 'none';
   audioPlayer.pause(); audioWrapper.style.display = 'none';
 
   const judul = file.name.replace(/\.[^/.]+$/, ""); 
 
   if (file.type.startsWith('video/')) {
+    // --- SETTING VIDEO ---
     videoPlayer.src = fileURL;
     videoPlayer.style.display = 'block';
     playerTitle.textContent = "🎬 " + judul;
+    innerBox.style.maxWidth = '350px'; // Kotak hitam jadi lebih kecil di tengah bawah
+    innerBox.style.margin = '0 auto';  // Kotak hitam posisi tengah
+    tipText.style.display = 'none';    // Tips disembunyikan kalau video
+    
   } else if (file.type.startsWith('audio/')) {
+    // --- SETTING MP3 ---
     audioPlayer.src = fileURL;
     audioWrapper.style.display = 'block';
     playerTitle.textContent = "🎵 " + judul;
+    innerBox.style.maxWidth = '100%';  // Kotak hitam melebar penuh biar mini-bar jadi rapi
+    innerBox.style.margin = '0';       // Kotak hitam nempel kiri-kanan
+    tipText.style.display = 'block';   // Tips dimunculkan kalau MP3
   }
 
+  // Update Navigasi
   playerNav.style.display = 'flex';
+  playerNav.style.justifyContent = 'center';
+  playerNav.style.alignItems = 'center';
   mediaCounter.textContent = `${index + 1} / ${mediaList.length}`;
+
+  // Tampilkan Container utama (pijakan bawah)
+  document.getElementById('playerContainer').style.display = 'block';
 
   setupMediaSession(judul);
   
+  // Auto play
   setTimeout(() => {
     if (file.type.startsWith('video/')) videoPlayer.play().catch(()=>{});
     if (file.type.startsWith('audio/')) audioPlayer.play().catch(()=>{});
   }, 100);
 }
-
+  
 // Otomatis Next
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('audioPlayer').addEventListener('ended', nextMedia);
@@ -1327,6 +1350,17 @@ function prevMedia() {
   if (mediaList.length === 0) return;
   currentIndex = (currentIndex - 1 + mediaList.length) % mediaList.length;
   playMedia(currentIndex);
+}
+
+  // Fungsi tutup player manual
+function tutupPlayer() {
+  const videoPlayer = document.getElementById('videoPlayer');
+  const audioPlayer = document.getElementById('audioPlayer');
+  
+  videoPlayer.pause();
+  audioPlayer.pause();
+  
+  document.getElementById('playerContainer').style.display = 'none';
 }
 
 // Magic Layar Kunci
