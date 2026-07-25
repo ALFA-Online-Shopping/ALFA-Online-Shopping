@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.welcome_to_batam.twa",
+        "sha256_cert_fingerprints": ["88:56:F9:26:76:9D:3D:C0:E7:FC:FA:D5:56:37:E6:69:53:5B:D8:08:4C:F2:AC:76:1E:9F:C5:49:EE:99:54:B9"]
+      }
+    }]
