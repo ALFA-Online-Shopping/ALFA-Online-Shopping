@@ -705,7 +705,7 @@ Nikmati berbagai penawaran & fitur terbaik:
 </div>
 
 <!-- ============================================== -->
-<!-- BAGIAN 2: PEMUTAR VIDEO & MUSIK MP3 DARI HP (FITUR PLAYLIST - STICKY MINI BAR) -->
+<!-- BAGIAN 2: PEMUTAR VIDEO & MUSIK MP3 DARI HP (DRAGGABLE PiP MODE) -->
 <!-- ============================================== -->
 <div style="text-align:center; padding:15px;">
   <!-- Input tersembunyi khusus HP -->
@@ -717,12 +717,16 @@ Nikmati berbagai penawaran & fitur terbaik:
   </button>
 </div>
 
-<!-- STICKY PLAYER (Posisi melayang di bawah layar) -->
-<div id="playerContainer" style="display:none; position:fixed; bottom:0; left:0; width:100%; z-index:9999; padding:10px; box-sizing:border-box;">
+<!-- FLOATING PLAYER (Bisa digeser kemana saja) -->
+<div id="floatingPlayer" style="display:none; position:fixed; bottom:20px; right:20px; width:300px; max-width:85vw; background:#222; border-radius:12px; color:white; box-shadow:0 4px 15px rgba(0,0,0,0.6); z-index:9999; overflow:hidden;">
   
-  <!-- INNER BOX (Kotak hitam yang isinya player) -->
-  <div id="playerInnerBox" style="background:#222; border-radius:12px; padding:10px; color:white; box-shadow:0 -4px 15px rgba(0,0,0,0.6);">
-    
+  <!-- AREA PEGANG / DRAG HANDLE (Untuk menggeser pemutar) -->
+  <div id="dragHandle" style="background:#333; padding:8px 10px; cursor:grab; text-align:center; font-size:11px; color:#aaa; border-bottom:1px solid #444; user-select:none;">
+    ⠿ Geser Pemutar ⠿
+  </div>
+
+  <!-- ISI PLAYER -->
+  <div style="padding:10px;">
     <h4 id="playerTitle" style="margin:0 0 5px 0; font-size:14px; color:#fff;">🎵 Media Player</h4>
     
     <!-- Area Video -->
@@ -742,9 +746,8 @@ Nikmati berbagai penawaran & fitur terbaik:
     </div>
     
     <p id="playerTip" style="font-size:10px; color:#aaa; margin-top:5px; margin-bottom:0;">⚠️ Jangan swipe-close Chrome agar musik tetap nyala</p>
-
-  </div> <!-- End Inner Box -->
-</div> <!-- End Container Utama -->
+  </div>
+</div>
   
   <!-- KOTAK INPUT RATING & TESTIMONI -->
 <div class="testimoni-box" style="background: white; padding: 20px; border-radius: 15px; margin: 20px auto; max-width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
@@ -1288,32 +1291,24 @@ function playMedia(index) {
   const playerTitle = document.getElementById('playerTitle');
   const playerNav = document.getElementById('playerNav');
   const mediaCounter = document.getElementById('mediaCounter');
-  const innerBox = document.getElementById('playerInnerBox');
   const tipText = document.getElementById('playerTip');
 
-  // Reset semua dulu
+  // Reset
   videoPlayer.pause(); videoPlayer.style.display = 'none';
   audioPlayer.pause(); audioWrapper.style.display = 'none';
 
   const judul = file.name.replace(/\.[^/.]+$/, ""); 
 
   if (file.type.startsWith('video/')) {
-    // --- SETTING VIDEO ---
     videoPlayer.src = fileURL;
     videoPlayer.style.display = 'block';
     playerTitle.textContent = "🎬 " + judul;
-    innerBox.style.maxWidth = '350px'; // Kotak hitam jadi lebih kecil di tengah bawah
-    innerBox.style.margin = '0 auto';  // Kotak hitam posisi tengah
-    tipText.style.display = 'none';    // Tips disembunyikan kalau video
-    
+    tipText.style.display = 'none';
   } else if (file.type.startsWith('audio/')) {
-    // --- SETTING MP3 ---
     audioPlayer.src = fileURL;
     audioWrapper.style.display = 'block';
     playerTitle.textContent = "🎵 " + judul;
-    innerBox.style.maxWidth = '100%';  // Kotak hitam melebar penuh biar mini-bar jadi rapi
-    innerBox.style.margin = '0';       // Kotak hitam nempel kiri-kanan
-    tipText.style.display = 'block';   // Tips dimunculkan kalau MP3
+    tipText.style.display = 'block';
   }
 
   // Update Navigasi
@@ -1322,8 +1317,13 @@ function playMedia(index) {
   playerNav.style.alignItems = 'center';
   mediaCounter.textContent = `${index + 1} / ${mediaList.length}`;
 
-  // Tampilkan Container utama (pijakan bawah)
-  document.getElementById('playerContainer').style.display = 'block';
+  // Tampilkan Pemutar Melayang & Reset posisinya ke kanan bawah
+  const fp = document.getElementById('floatingPlayer');
+  fp.style.display = 'block';
+  fp.style.left = 'auto';
+  fp.style.top = 'auto';
+  fp.style.bottom = '20px';
+  fp.style.right = '20px';
 
   setupMediaSession(judul);
   
@@ -1352,7 +1352,7 @@ function prevMedia() {
   playMedia(currentIndex);
 }
 
-  // Fungsi tutup player manual
+// Fungsi tutup player manual
 function tutupPlayer() {
   const videoPlayer = document.getElementById('videoPlayer');
   const audioPlayer = document.getElementById('audioPlayer');
@@ -1360,7 +1360,9 @@ function tutupPlayer() {
   videoPlayer.pause();
   audioPlayer.pause();
   
-  document.getElementById('playerContainer').style.display = 'none';
+  document.getElementById('floatingPlayer').style.display = 'none';
+  // Hapus paddingBottom karena kita pakai mode melayang sekarang
+  document.body.style.paddingBottom = '0px'; 
 }
 
 // Magic Layar Kunci
@@ -1375,6 +1377,66 @@ function setupMediaSession(namaFile) {
     navigator.mediaSession.setActionHandler('previoustrack', prevMedia);
   }
     }
+
+  // ============================
+// FITUR DRAGGABLE (GESER PLAYER)
+// ============================
+const floatingPlayer = document.getElementById('floatingPlayer');
+const dragHandle = document.getElementById('dragHandle');
+let isDragging = false;
+let startX, startY, initialLeft, initialTop;
+
+// Saat jari mulai menyentuh area pegang
+dragHandle.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    
+    // Ambil posisi pemutar saat ini
+    const rect = floatingPlayer.getBoundingClientRect();
+    initialLeft = rect.left;
+    initialTop = rect.top;
+    
+    dragHandle.style.background = '#555'; // Warna berubah saat digeser
+    dragHandle.innerText = '⠿ Sedang Geser... ⠿';
+});
+
+// Saat jari bergerak (menggeser)
+document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const diffX = currentX - startX;
+    const diffY = currentY - startY;
+
+    // Hitung posisi baru
+    let newLeft = initialLeft + diffX;
+    let newTop = initialTop + diffY;
+
+    // Agar pemutar nggak keluar dari layar HP (Boundary Check)
+    const playerWidth = floatingPlayer.offsetWidth;
+    const playerHeight = floatingPlayer.offsetHeight;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    newLeft = Math.max(0, Math.min(newLeft, screenWidth - playerWidth));
+    newTop = Math.max(0, Math.min(newTop, screenHeight - playerHeight));
+
+    // Terapkan posisi baru
+    floatingPlayer.style.left = newLeft + 'px';
+    floatingPlayer.style.top = newTop + 'px';
+    floatingPlayer.style.bottom = 'auto'; // Hapus bottom agar top berfungsi
+    floatingPlayer.style.right = 'auto';  // Hapus right agar left berfungsi
+});
+
+// Saat jari dilepas
+document.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    dragHandle.style.background = '#333'; // Kembalikan warna
+    dragHandle.innerText = '⠿ Geser Pemutar ⠿';
+});
     
   </script>
 
