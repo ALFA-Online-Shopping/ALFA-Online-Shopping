@@ -1333,12 +1333,6 @@ function playMedia(index) {
     if (file.type.startsWith('audio/')) audioPlayer.play().catch(()=>{});
   }, 100);
 }
-  
-// Otomatis Next
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('audioPlayer').addEventListener('ended', nextMedia);
-  document.getElementById('videoPlayer').addEventListener('ended', nextMedia);
-});
 
 function nextMedia() {
   if (mediaList.length === 0) return;
@@ -1378,8 +1372,8 @@ function setupMediaSession(namaFile) {
   }
     }
 
-  // ============================
-// FITUR DRAGGABLE (GESER PLAYER)
+// ============================
+// FITUR DRAGGABLE (GESER PLAYER) - Versi Anti-Bentrok
 // ============================
 const floatingPlayer = document.getElementById('floatingPlayer');
 const dragHandle = document.getElementById('dragHandle');
@@ -1392,29 +1386,26 @@ dragHandle.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     
-    // Ambil posisi pemutar saat ini
     const rect = floatingPlayer.getBoundingClientRect();
     initialLeft = rect.left;
     initialTop = rect.top;
     
-    dragHandle.style.background = '#555'; // Warna berubah saat digeser
+    dragHandle.style.background = '#555';
     dragHandle.innerText = '⠿ Sedang Geser... ⠿';
-});
+}, {passive: true}); // <- Tambahan passive true biar nggak nabrak
 
 // Saat jari bergerak (menggeser)
 document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
+    if (!isDragging) return; // Kalau bukan megang handle, abaikan
     
     const currentX = e.touches[0].clientX;
     const currentY = e.touches[0].clientY;
     const diffX = currentX - startX;
     const diffY = currentY - startY;
 
-    // Hitung posisi baru
     let newLeft = initialLeft + diffX;
     let newTop = initialTop + diffY;
 
-    // Agar pemutar nggak keluar dari layar HP (Boundary Check)
     const playerWidth = floatingPlayer.offsetWidth;
     const playerHeight = floatingPlayer.offsetHeight;
     const screenWidth = window.innerWidth;
@@ -1423,21 +1414,20 @@ document.addEventListener('touchmove', (e) => {
     newLeft = Math.max(0, Math.min(newLeft, screenWidth - playerWidth));
     newTop = Math.max(0, Math.min(newTop, screenHeight - playerHeight));
 
-    // Terapkan posisi baru
     floatingPlayer.style.left = newLeft + 'px';
     floatingPlayer.style.top = newTop + 'px';
-    floatingPlayer.style.bottom = 'auto'; // Hapus bottom agar top berfungsi
-    floatingPlayer.style.right = 'auto';  // Hapus right agar left berfungsi
-});
+    floatingPlayer.style.bottom = 'auto';
+    floatingPlayer.style.right = 'auto';
+}, {passive: true}); // <- Tambahan passive true biar nggak nabrak
 
 // Saat jari dilepas
 document.addEventListener('touchend', () => {
     if (!isDragging) return;
     isDragging = false;
-    dragHandle.style.background = '#333'; // Kembalikan warna
+    dragHandle.style.background = '#333';
     dragHandle.innerText = '⠿ Geser Pemutar ⠿';
 });
-    
+  
   </script>
 
 <div id="popup-keranjang" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
