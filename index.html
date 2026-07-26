@@ -717,8 +717,8 @@ Nikmati berbagai penawaran & fitur terbaik:
   </button>
 </div>
 
-<!-- FLOATING PLAYER (Bisa digeser kemana saja) -->
-<div id="floatingPlayer" style="display:none; position:fixed; bottom:20px; right:20px; width:300px; max-width:85vw; background:#222; border-radius:12px; color:white; box-shadow:0 4px 15px rgba(0,0,0,0.6); z-index:9999; overflow:hidden;">
+  <!-- FLOATING PLAYER (Bisa digeser kemana saja - Versi Mulus) -->
+<div id="floatingPlayer" style="display:none; position:fixed; bottom:20px; right:20px; width:300px; max-width:85vw; background:#222; border-radius:12px; color:white; box-shadow:0 4px 15px rgba(0,0,0,0.6); z-index:9999; overflow:hidden; will-change: transform; transition: none;">
   
   <!-- AREA PEGANG / DRAG HANDLE (Untuk menggeser pemutar) -->
   <div id="dragHandle" style="background:#333; padding:8px 10px; cursor:grab; text-align:center; font-size:11px; color:#aaa; border-bottom:1px solid #444; user-select:none;">
@@ -1327,6 +1327,10 @@ function playMedia(index) {
 
   setupMediaSession(judul);
   
+  // === TAMBAHAN BARU: Otomatis Next Lagu/Video saat selesai ===
+  videoPlayer.onended = nextMedia;
+  audioPlayer.onended = nextMedia;
+  
   // Auto play
   setTimeout(() => {
     if (file.type.startsWith('video/')) videoPlayer.play().catch(()=>{});
@@ -1373,12 +1377,13 @@ function setupMediaSession(namaFile) {
     }
 
 // ============================
-// FITUR DRAGGABLE (GESER PLAYER) - Versi Anti-Bentrok
+// FITUR DRAGGABLE (GESER PLAYER) - Versi Mulus (GPU Accelerated)
 // ============================
 const floatingPlayer = document.getElementById('floatingPlayer');
 const dragHandle = document.getElementById('dragHandle');
 let isDragging = false;
-let startX, startY, initialLeft, initialTop;
+let startX, startY, currentTranslateX = 0, currentTranslateY = 0;
+let prevTranslateX = 0, prevTranslateY = 0;
 
 // Saat jari mulai menyentuh area pegang
 dragHandle.addEventListener('touchstart', (e) => {
@@ -1386,39 +1391,28 @@ dragHandle.addEventListener('touchstart', (e) => {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     
-    const rect = floatingPlayer.getBoundingClientRect();
-    initialLeft = rect.left;
-    initialTop = rect.top;
+    // Simpan posisi transform terakhir
+    prevTranslateX = currentTranslateX;
+    prevTranslateY = currentTranslateY;
     
     dragHandle.style.background = '#555';
     dragHandle.innerText = '⠿ Sedang Geser... ⠿';
-}, {passive: true}); // <- Tambahan passive true biar nggak nabrak
+}, {passive: true});
 
-// Saat jari bergerak (menggeser)
+// Saat jari bergerak (menggeser) - Pakai Transform biar mulus
 document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return; // Kalau bukan megang handle, abaikan
+    if (!isDragging) return;
     
     const currentX = e.touches[0].clientX;
     const currentY = e.touches[0].clientY;
-    const diffX = currentX - startX;
-    const diffY = currentY - startY;
+    
+    // Hitung seberapa jauh jari bergerak dari posisi awal sentuh
+    currentTranslateX = prevTranslateX + (currentX - startX);
+    currentTranslateY = prevTranslateY + (currentY - startY);
 
-    let newLeft = initialLeft + diffX;
-    let newTop = initialTop + diffY;
-
-    const playerWidth = floatingPlayer.offsetWidth;
-    const playerHeight = floatingPlayer.offsetHeight;
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-
-    newLeft = Math.max(0, Math.min(newLeft, screenWidth - playerWidth));
-    newTop = Math.max(0, Math.min(newTop, screenHeight - playerHeight));
-
-    floatingPlayer.style.left = newLeft + 'px';
-    floatingPlayer.style.top = newTop + 'px';
-    floatingPlayer.style.bottom = 'auto';
-    floatingPlayer.style.right = 'auto';
-}, {passive: true}); // <- Tambahan passive true biar nggak nabrak
+    // Pakai CSS Transform (Ini diproses oleh GPU HP, jadi SUPER MULUS!)
+    floatingPlayer.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px)`;
+}, {passive: true});
 
 // Saat jari dilepas
 document.addEventListener('touchend', () => {
