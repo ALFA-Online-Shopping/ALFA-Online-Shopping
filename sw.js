@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alfa-cache-v119'; // Naikkan versi ke v119
+const CACHE_NAME = 'alfa-cache-v120'; // Naikkan versi ke v120
 const assets = [
   '/ALFA-Online-Shopping/',
   '/ALFA-Online-Shopping/index.html',
