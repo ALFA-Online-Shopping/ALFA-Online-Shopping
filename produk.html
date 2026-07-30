@@ -206,7 +206,7 @@ function getId() {
   return params.get('id');
 }
 
-const id = getId();
+  const id = getId();
 const produk = dataProduk[id];
 
 if (produk) {
@@ -219,6 +219,14 @@ if (produk) {
 
   const slides = document.getElementById('slides');
   const dots = document.getElementById('dots');
+  // Lanjutkan semua kode manual kamu di sini (seperti slides.innerHTML, dll)...
+  
+  // ... (JANGAN DIHAPUS, biarkan semua kode render manualmu tetap di sini)
+  
+} else if (!urlParams.get('fb_id')) {
+  // HANYA kalau BUKAN produk Firebase, baru tunjukkan error ini
+  document.body.innerHTML = '<h1 style="text-align:center;padding:50px">Produk tidak ditemukan</h1>';
+}
   slides.innerHTML = '';
   dots.innerHTML = '';
   
@@ -384,19 +392,20 @@ function tutupZoom() {
   }
   const database = firebase.database();
 
-  // === FUNGSI BACA PRODUK FIREBASE ===
-  const urlParams = new URLSearchParams(window.location.search);
-  const fbProductId = urlParams.get('fb_id'); // Cek apakah ada parameter fb_id
+  // === LOGIKA DETEKSI PRODUK FIREBASE ===
+  const urlParams = new URLSearchParams(window.location.search); // <--- PASTIKAN INI ADA
+  const fbProductId = urlParams.get('fb_id'); 
 
   if (fbProductId) {
-      // Sembunyikan produk manual, tampilkan produk Firebase
-      // CATATAN: Ganti 'product-detail-container' dengan ID wadah produk manual kamu
-      // Kalau nggak tau ID-nya, biarkan saja, nanti kita rapikan next step
-      const manualProduct = document.querySelector('.product-detail') || document.querySelector('main') || document.body;
-      // manualProduct.style.display = 'none'; // Uncomment ini kalau mau sembunyiin produk manual
+      // KALAU INI PRODUK FIREBASE (ALFA 2.0)
       
+      // 1. Sembunyikan produk manual
+      document.getElementById('manual-product-container').style.display = 'none';
+      
+      // 2. Tampilkan wadah produk Firebase
       document.getElementById('firebase-product-detail').style.display = 'block';
 
+      // 3. Ambil data dari Firebase
       database.ref('produk_alfa/' + fbProductId).once('value', (snapshot) => {
           if (snapshot.exists()) {
               const item = snapshot.val();
@@ -418,7 +427,6 @@ function tutupZoom() {
           }
       });
   }
-</script>
-  
+</script>  
 </body>
 </html>
