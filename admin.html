@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - ALFA</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f1f1f1; margin: 0; padding: 20px; }
+        .admin-container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        button { width: 100%; padding: 12px; background: #ff4757; color: white; border: none; border-radius: 25px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:hover { background: #e84118; }
+        .login-box { text-align: center; margin-top: 50px; }
+        #adminPanel { display: none; } /* Sembunyikan dulu sebelum login */
+    </style>
+</head>
+<body>
+
+<!-- ==================== PINTU RAHASIA (LOGIN) ==================== -->
+<div id="loginGate" class="admin-container login-box">
+    <h2>🛡️ Admin ALFA</h2>
+    <p style="color:#888; font-size:14px;">Masukkan password untuk mengakses panel</p>
+    <input type="password" id="adminPassword" placeholder="Password Rahasia...">
+    <button onclick="cekPassword()" style="background:#2ecc71;">Buka Pintu</button>
+</div>
+
+<!-- ==================== PANEL UTAMA (SEMBUNYI) ==================== -->
+<div id="adminPanel" class="admin-container">
+    <h2>📦 Tambah Produk Baru</h2>
+    
+    <label style="font-weight:bold; color:#555;">Nama Produk:</label>
+    <input type="text" id="product-name" placeholder="Contoh: TWS Warna Biru">
+    
+    <label style="font-weight:bold; color:#555;">Harga (Angka saja):</label>
+    <input type="number" id="product-price" placeholder="Contoh: 55000">
+    
+    <button onclick="tambahProdukKeFirebase()">🚀 Publish Produk</button>
+    
+    <hr style="margin: 20px 0;">
+    <h3>Daftar Produk di Database:</h3>
+    <div id="product-list-container" style="max-height: 300px; overflow-y: auto;"></div>
+</div>
+
+<!-- ==================== FIREBASE SCRIPT ==================== -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+  // === 1. FUNGSI PINTU RAHASIA ===
+  function cekPassword() {
+      const pass = document.getElementById('adminPassword').value;
+      // GANTI PASSWORD INI SESUKAMU! (Ini password sementara)
+      if (pass === "alfa2024") {
+          document.getElementById('loginGate').style.display = 'none';
+          document.getElementById('adminPanel').style.display = 'block';
+          loadProductsFromFirebase(); // Load data setelah berhasil login
+      } else {
+          alert("Password Salah! Kamu bukan Admin.");
+      }
+  }
+
+  // === 2. KONFIGURASI FIREBASE (Sama seperti di index.html) ===
+  const firebaseConfig = {
+    apiKey: "AIzaSyD71_Gk4N4xdVPzp62FUH5iS4uNHQdX1h4",
+    authDomain: "alfa-online-shopping.firebaseapp.com",
+    databaseURL: "https://alfa-online-shopping-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "alfa-online-shopping",
+    storageBucket: "alfa-online-shopping.firebasestorage.app",
+    messagingSenderId: "340337147242",
+    appId: "1:340337147242:web:bf711d13e314f8eaa30c13"
+  };
+  
+  if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+  }
+  const database = firebase.database();
+
+  // === 3. FUNGSI TAMBAH PRODUK KE FIREBASE ===
+  function tambahProdukKeFirebase() {
+      const nama = document.getElementById('product-name').value.trim();
+      const harga = parseInt(document.getElementById('product-price').value);
+
+      if (nama === "" || isNaN(harga)) {
+          alert("Isi Nama dan Harga dengan benar!");
+          return;
+      }
+
+      const produkBaru = {
+          namaProduk: nama,
+          hargaProduk: harga
+      };
+
+      // Simpan ke node 'produk_alfa' di Firebase
+      database.ref('produk_alfa').push(produkBaru)
+      .then(() => {
+          alert("Produk berhasil ditambahkan! 🎉");
+          document.getElementById('product-name').value = "";
+          document.getElementById('product-price').value = "";
+      })
+      .catch((error) => {
+          alert("Gagal menambah produk: " + error.message);
+      });
+  }
+
+  // === 4. FUNGSI BACA PRODUK DARI FIREBASE ===
+  function loadProductsFromFirebase() {
+      database.ref('produk_alfa').on('value', (snapshot) => {
+          const wadahProduk = document.getElementById('product-list-container');
+          wadahProduk.innerHTML = "";
+
+          if (snapshot.exists()) {
+              const semuaData = snapshot.val();
+              Object.keys(semuaData).forEach((key) => { 
+                  const item = semuaData[key];
+                  const elementProduk = `
+                      <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                          <div>
+                              <strong style="color:#333;">${item.namaProduk}</strong><br>
+                              <small style="color:#e84118; font-weight:bold;">Rp ${item.hargaProduk.toLocaleString('id-ID')}</small>
+                          </div>
+                          <button onclick="hapusProduk('${key}')" style="width:auto; padding:5px 10px; background:#ff4757; font-size:12px;">Hapus</button>
+                      </div>
+                  `;
+                  wadahProduk.innerHTML += elementProduk;
+              });
+          } else {
+              wadahProduk.innerHTML = "<p style='color:#888; text-align:center;'>Belum ada produk.</p>";
+          }
+      });
+  }
+
+  // === 5. FUNGSI HAPUS PRODUK ===
+  function hapusProduk(key) {
+      if(confirm("Yakin mau hapus produk ini?")) {
+          database.ref('produk_alfa/' + key).remove();
+      }
+  }
+</script>
+
+</body>
+</html>
