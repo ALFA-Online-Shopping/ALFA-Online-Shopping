@@ -37,6 +37,17 @@
   <h1>Detail Produk</h1>
 </header>
 
+  <!-- ============================================== -->
+<!-- PRODUK DARI ADMIN PANEL (FIREBASE) -->
+<!-- ============================================== -->
+<div id="firebase-product-detail" style="display:none; padding:20px; text-align:center;">
+    <img id="fb-product-image" src="" style="width:100%; max-width:300px; border-radius:10px; margin-bottom:15px;">
+    <h2 id="fb-product-name" style="color:#333; margin-bottom:10px;"></h2>
+    <p id="fb-product-price" style="font-size:24px; font-weight:bold; color:#ff4757; margin-bottom:20px;"></p>
+    <button id="fb-add-cart-btn" class="btn-tambah" style="width:100%; padding:15px; font-size:16px;">+ Tambah Ke Keranjang</button>
+    <hr style="margin:20px 0;">
+</div>
+
   <div class="slider">
   <div class="slides" id="slides"></div>
   <div class="dots" id="dots"></div>
@@ -349,6 +360,61 @@ function tutupZoom() {
   <div id="zoomIndicator" style="position:absolute; bottom:30px; color:white; font-size:16px; background:rgba(0,0,0,0.5); padding:5px 15px; border-radius:15px;"></div>
 
 </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+  // === KONFIGURASI FIREBASE ===
+  const firebaseConfig = {
+    apiKey: "AIzaSyD71_Gk4N4xdVPzp62FUH5iS4uNHQdX1h4",
+    authDomain: "alfa-online-shopping.firebaseapp.com",
+    databaseURL: "https://alfa-online-shopping-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "alfa-online-shopping",
+    storageBucket: "alfa-online-shopping.firebasestorage.app",
+    messagingSenderId: "340337147242",
+    appId: "1:340337147242:web:bf711d13e314f8eaa30c13"
+  };
+  
+  if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+  }
+  const database = firebase.database();
+
+  // === FUNGSI BACA PRODUK FIREBASE ===
+  const urlParams = new URLSearchParams(window.location.search);
+  const fbProductId = urlParams.get('fb_id'); // Cek apakah ada parameter fb_id
+
+  if (fbProductId) {
+      // Sembunyikan produk manual, tampilkan produk Firebase
+      // CATATAN: Ganti 'product-detail-container' dengan ID wadah produk manual kamu
+      // Kalau nggak tau ID-nya, biarkan saja, nanti kita rapikan next step
+      const manualProduct = document.querySelector('.product-detail') || document.querySelector('main') || document.body;
+      // manualProduct.style.display = 'none'; // Uncomment ini kalau mau sembunyiin produk manual
+      
+      document.getElementById('firebase-product-detail').style.display = 'block';
+
+      database.ref('produk_alfa/' + fbProductId).once('value', (snapshot) => {
+          if (snapshot.exists()) {
+              const item = snapshot.val();
+              document.getElementById('fb-product-name').textContent = item.namaProduk;
+              document.getElementById('fb-product-price').textContent = "Rp " + item.hargaProduk.toLocaleString('id-ID');
+              
+              if (item.linkFoto) {
+                  document.getElementById('fb-product-image').src = item.linkFoto;
+              } else {
+                  document.getElementById('fb-product-image').style.display = 'none';
+              }
+
+              // Tombol Keranjang Firebase
+              document.getElementById('fb-add-cart-btn').onclick = () => {
+                  tambahKeKeranjang(item.namaProduk, item.hargaProduk);
+              };
+          } else {
+              document.getElementById('fb-product-name').textContent = "Produk tidak ditemukan di Database";
+          }
+      });
+  }
+</script>
   
 </body>
 </html>
