@@ -939,20 +939,23 @@ database.ref('produk_alfa').on('value', (snapshot) => {
         Object.keys(semuaProduk).forEach((key) => { 
             const item = semuaProduk[key];
             
-            // Format harga ke Rupiah
+           // Format harga ke Rupiah
             const hargaRupiah = "Rp" + item.hargaProduk.toLocaleString('id-ID');
 
-            // Buat tampilan kartu produk (Menyesuaikan produk manual kamu)
+            // Buat tampilan kartu produk (Dengan Foto & Link Detail)
             const elementProduk = `
                 <div class="product-item" style="background:#fff; border-radius:12px; padding:15px; text-align:center; width:150px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-                    <h4 style="font-size:14px; color:#333; margin-bottom:10px;">${item.namaProduk}</h4>
-                    <p style="font-weight:bold; color:#ff4757; font-size:14px; margin-bottom:10px;">${hargaRupiah}</p>
+                    <a href="produk.html?fb_id=${key}" style="text-decoration:none; color:inherit;">
+                        ${item.linkFoto ? `<img src="${item.linkFoto}" style="width:100%; height:120px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : `<div style="width:100%; height:120px; background:#f1f1f1; border-radius:8px; margin-bottom:10px; display:flex; align-items:center; justify-content:center; color:#aaa; font-size:12px;">No Photo</div>`}
+                        <h4 style="font-size:14px; color:#333; margin-bottom:10px;">${item.namaProduk}</h4>
+                        <p style="font-weight:bold; color:#ff4757; font-size:14px; margin-bottom:10px;">${hargaRupiah}</p>
+                    </a>
                     <button class="btn-tambah" onclick="tambahKeKeranjang('${item.namaProduk}', ${item.hargaProduk})" style="font-size:12px; padding:8px;">
                         + Tambah Ke Keranjang
                     </button>
                 </div>
             `;
-            wadahProduk.innerHTML += elementProduk;
+          wadahProduk.innerHTML += elementProduk;
         });
     } else {
         wadahProduk.innerHTML = `<p style="color:#888; width:100%; text-align:center;">Belum ada produk terbaru dari Admin.</p>`;
