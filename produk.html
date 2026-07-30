@@ -206,10 +206,14 @@ function getId() {
   return params.get('id');
 }
 
-  const id = getId();
+// TAMBAHKAN INI: Definisikan urlParams di sini agar bisa dipakai di script manual
+const urlParams = new URLSearchParams(window.location.search);
+const fbProductId = urlParams.get('fb_id');
+
+const id = getId();
 const produk = dataProduk[id];
 
-if (produk) {
+if (produk && !fbProductId) { // Jika produk manual ADA dan BUKAN produk Firebase
   document.getElementById("productName").innerHTML = produk.nama + (produk.varianTersedia ? '<br><span style="font-size:13px; color:#0052cc; font-weight:600;">Varian: ' + produk.varianTersedia + '</span>' : '');
   document.getElementById('productPrice').textContent = `Rp${produk.harga.toLocaleString('id-ID')}`;
 
@@ -219,12 +223,14 @@ if (produk) {
 
   const slides = document.getElementById('slides');
   const dots = document.getElementById('dots');
-  // Lanjutkan semua kode manual kamu di sini (seperti slides.innerHTML, dll)...
   
-  // ... (JANGAN DIHAPUS, biarkan semua kode render manualmu tetap di sini)
+  // ... (LANJUTKAN SEMUA KODE MANUAL KAMU DI SINI, JANGAN DIHAPUS)
+  // Misalnya: slides.innerHTML = ''; dll...
   
-} else if (!urlParams.get('fb_id')) {
-  // HANYA kalau BUKAN produk Firebase, baru tunjukkan error ini
+} else if (fbProductId) {
+  // Jangan lakukan apa-apa, biar script Firebase di bawah yang ngerjain
+} else {
+  // Kalau nggak ada id manual dan nggak ada fb_id, tampilkan error
   document.body.innerHTML = '<h1 style="text-align:center;padding:50px">Produk tidak ditemukan</h1>';
 }
   slides.innerHTML = '';
