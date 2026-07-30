@@ -37,6 +37,11 @@
     
     <button onclick="tambahProdukKeFirebase()">🚀 Publish Produk</button>
     
+    <label style="font-weight:bold; color:#555;">Link Foto (URL dari GitHub):</label>
+    <input type="text" id="product-image-url" placeholder="Contoh: https://welcome-to-batam.github.io/ALFA-Online-Shopping/img/nama-foto.jpg">
+    
+    <button onclick="tambahProdukKeFirebase()" style="margin-top:15px;">🚀 Publish Produk</button>
+    
     <hr style="margin: 20px 0;">
     <h3>Daftar Produk di Database:</h3>
     <div id="product-list-container" style="max-height: 300px; overflow-y: auto;"></div>
@@ -76,10 +81,11 @@
   }
   const database = firebase.database();
 
-  // === 3. FUNGSI TAMBAH PRODUK KE FIREBASE ===
+    // === 3. FUNGSI TAMBAH PRODUK KE FIREBASE (PAKAI LINK URL) ===
   function tambahProdukKeFirebase() {
       const nama = document.getElementById('product-name').value.trim();
       const harga = parseInt(document.getElementById('product-price').value);
+      const linkFoto = document.getElementById('product-image-url').value.trim();
 
       if (nama === "" || isNaN(harga)) {
           alert("Isi Nama dan Harga dengan benar!");
@@ -88,15 +94,16 @@
 
       const produkBaru = {
           namaProduk: nama,
-          hargaProduk: harga
+          hargaProduk: harga,
+          linkFoto: linkFoto // Simpan link foto ke database
       };
 
-      // Simpan ke node 'produk_alfa' di Firebase
       database.ref('produk_alfa').push(produkBaru)
       .then(() => {
           alert("Produk berhasil ditambahkan! 🎉");
           document.getElementById('product-name').value = "";
           document.getElementById('product-price').value = "";
+          document.getElementById('product-image-url').value = "";
       })
       .catch((error) => {
           alert("Gagal menambah produk: " + error.message);
