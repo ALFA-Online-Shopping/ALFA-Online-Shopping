@@ -685,6 +685,14 @@ Nikmati berbagai penawaran & fitur terbaik:
  </div><!-- PENUTUP .container -->
 
   <!-- ============================================== -->
+<!-- PRODUK DARI ADMIN PANEL (FIREBASE) -->
+<!-- ============================================== -->
+<h3 style="text-align:center; margin-top:30px; color:#333;">🚀 Produk Terbaru</h3>
+<div id="firebase-products-container" style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; padding:10px;">
+  <p style="color:#888; width:100%; text-align:center;">Memuat produk dari database...</p>
+</div>
+
+  <!-- ============================================== -->
 <!-- BAGIAN 1: VIDEO IKLAN PRODUK BAWAAN TOKO (TETAP AMAN) -->
 <!-- ============================================== -->
 <div class="product" style="text-align: center; padding: 15px;">
@@ -915,6 +923,42 @@ Nikmati berbagai penawaran & fitur terbaik:
           wadahUlasan.innerHTML = `<p style="color: #888; font-size: 13px; text-align: center; font-style: italic;">Belum ada ulasan. Jadilah yang pertama memberikan ulasan! ✨</p>`;
       }
   });
+
+    // ============================
+// BACA PRODUK DARI ADMIN PANEL (FIREBASE)
+// ============================
+// Pastikan variabel 'database' sudah ada dari script Firebase Ulasan sebelumnya.
+// Kalau belum, kamu harus tambahkan inisialisasi Firebase config lagi di sini.
+
+database.ref('produk_alfa').on('value', (snapshot) => {
+    const wadahProduk = document.getElementById('firebase-products-container');
+    wadahProduk.innerHTML = ""; // Kosongkan dulu
+
+    if (snapshot.exists()) {
+        const semuaProduk = snapshot.val();
+        
+        Object.keys(semuaProduk).forEach((key) => { 
+            const item = semuaProduk[key];
+            
+            // Format harga ke Rupiah
+            const hargaRupiah = "Rp" + item.hargaProduk.toLocaleString('id-ID');
+
+            // Buat tampilan kartu produk (Menyesuaikan produk manual kamu)
+            const elementProduk = `
+                <div class="product-item" style="background:#fff; border-radius:12px; padding:15px; text-align:center; width:150px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                    <h4 style="font-size:14px; color:#333; margin-bottom:10px;">${item.namaProduk}</h4>
+                    <p style="font-weight:bold; color:#ff4757; font-size:14px; margin-bottom:10px;">${hargaRupiah}</p>
+                    <button class="btn-tambah" onclick="tambahKeKeranjang('${item.namaProduk}', ${item.hargaProduk})" style="font-size:12px; padding:8px;">
+                        + Tambah Ke Keranjang
+                    </button>
+                </div>
+            `;
+            wadahProduk.innerHTML += elementProduk;
+        });
+    } else {
+        wadahProduk.innerHTML = `<p style="color:#888; width:100%; text-align:center;">Belum ada produk terbaru dari Admin.</p>`;
+    }
+});
 
   </script>
   
