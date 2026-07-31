@@ -224,6 +224,11 @@ if (produk && !fbProductId) { // Jika produk manual ADA dan BUKAN produk Firebas
   const slides = document.getElementById('slides');
   const dots = document.getElementById('dots');
 
+  document.getElementById('productRating').textContent = produk.rating;
+  document.getElementById('productSold').textContent = `${produk.terjual} Terjual`;
+  document.getElementById('productDesc').textContent = produk.deskripsi;
+  document.getElementById('productDesc').style.whiteSpace = "pre-line"; // Tambahkan baris ini
+  
   slides.innerHTML = ''; // <-- PINDAH KE DALAM SINI
   dots.innerHTML = '';
   arrGambar.forEach((img, i) => { // <-- PINDAH KE DALAM SINI
@@ -249,12 +254,6 @@ if (produk && !fbProductId) { // Jika produk manual ADA dan BUKAN produk Firebas
     slides.style.transform = `translateX(-${index*100}%)`;
     document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active', i===index));
   });
-
-  document.getElementById('productRating').textContent = produk.rating;
-  document.getElementById('productSold').textContent = `${produk.terjual} Terjual`;
-  document.getElementById('productDesc').textContent = produk.deskripsi;
-  document.getElementById('productDesc').style.whiteSpace = "pre-line"; // Tambahkan baris ini
-  
 
   if(produk.hargaCoret){
     document.getElementById('productOldPrice').textContent = `Rp${produk.hargaCoret.toLocaleString('id-ID')}`;
