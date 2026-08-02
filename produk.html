@@ -36,6 +36,8 @@
   <a href="index.html">←</a>
   <h1>Detail Produk</h1>
 </header>
+
+<div id="manual-product-container">
   
   <div class="slider">
   <div class="slides" id="slides"></div>
@@ -65,13 +67,27 @@
 <div class="wa-bar">
   <button id="waBtn" class="btn-wa"><i class='bx bxl-whatsapp'></i> Beli via WhatsApp</button>
 </div>
-  
-   <script>
+
+</div> <!-- Penutup manual-product-container -->
+
+<!-- Overlay Zoom Gambar -->
+<div id="overlayZoom" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; justify-content:center; align-items:center; flex-direction:column; touch-action:pan-y pinch-zoom;">
+  <span onclick="tutupZoom()" style="position:absolute; top:20px; right:25px; color:white; font-size:35px; font-weight:bold; cursor:pointer; z-index:10;">&times;</span>
+  <span id="prevZoom" onclick="prevZoom()" style="position:absolute; left:15px; top:50%; transform:translateY(-50%); font-size:40px; color:white; cursor:pointer; user-select:none; background:rgba(0,0,0,0.4); padding:5px 15px; border-radius:50%; z-index:10;">&#10094;</span>
+  <img id="gambarZoom" src="" style="max-width:90%; max-height:80%; object-fit:contain;">
+  <span id="nextZoom" onclick="nextZoom()" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); font-size:40px; color:white; cursor:pointer; user-select:none; background:rgba(0,0,0,0.4); padding:5px 15px; border-radius:50%; z-index:10;">&#10095;</span>
+  <div id="zoomIndicator" style="position:absolute; bottom:30px; color:white; font-size:16px; background:rgba(0,0,0,0.5); padding:5px 15px; border-radius:15px;"></div>
+</div>
+
+<script>
+// ==========================================
+// 1. DATA PRODUK LAMA (MANUAL)
+// ==========================================
 const dataProduk = {
   "1": {
     nama: "TWS M90 Pro",
     varianTersedia: "Warna Hitam",
-    stok: 1, // KOSONG ADA
+    stok: 1, 
     harga: 60000,
     hargaCoret: 68000,
     gambar: ["img/produk-1/m90pro.jpg", "img/produk-1/m90pro1.jpg", "img/produk-1/m90pro2.jpg", "img/produk-1/m90pro3.jpg", "img/produk-1/m90pro4.jpg", "img/produk-1/m90pro5.jpg", "img/produk-1/m90pro6.jpg", "img/produk-1/m90pro7.jpg", "img/produk-1/m90pro8.jpg", "img/produk-1/m90pro9.jpg"],
@@ -82,18 +98,18 @@ const dataProduk = {
   "2": {
     nama: "Hand Rest Grip",
     varianTersedia: "Warna Grey",
-    stok: 10, // ADA STOK
+    stok: 10, 
     harga: 20000,
     hargaCoret: 25000,
     gambar: ["img/produk-2honda/honda1.jpg", "img/produk-2honda/honda2.jpg", "img/produk-2honda/honda3.jpg", "img/produk-2honda/honda4.jpg", "img/produk-2honda/honda5.jpg", "img/produk-2honda/honda6.jpg", "img/produk-2honda/honda7.jpg", "img/produk-2honda/honda8.jpg", "img/produk-2honda/honda9.jpg", "img/produk-2honda/honda10.jpg"],
     rating: "4.8",
     terjual: "00 pcs",
-    deskripsi: "Nikmati kenyamanan berkendara jarak jauh tanpa pegal dan kebas-kebas telapak tangan✋ dengan Hand Rest/Penahan Gas Motor."
+    deskripsi: "Nikmati kenyamanan berkendara jarak jauh tanpa pegal dengan Hand Rest/Penahan Gas Motor."
   },
   "3": {
     nama: "Alat Angkat Galon",
     varianTersedia: "Warna Biru",
-    stok: 10, // ADA STOK
+    stok: 10, 
     harga: 17000,
     hargaCoret: 22000,
     gambar: ["img/produk-3/galon1.jpg", "img/produk-3/galon2.jpg", "img/produk-3/galon3.jpg", "img/produk-3/galon4.jpg", "img/produk-3/galon5.jpg", "img/produk-3/galon6.jpg", "img/produk-3/galon7.jpg", "img/produk-3/galon8.jpg", "img/produk-3/galon9.jpg", "img/produk-3/galon10.jpg"],
@@ -104,18 +120,18 @@ const dataProduk = {
   "4": { 
     nama: "Kopi Bubuk Gayo",
     varianTersedia: "1 Kilo",
-    stok: 5, // STOK ADA
+    stok: 5, 
     harga: 55000, 
     hargaCoret: 60000, 
     gambar: ["img/produk-4/kopigayo1.jpg", "img/produk-4/kopigayo2.jpg"], 
     rating: "4.8", 
     terjual: "00 pcs", 
-    deskripsi: "Nikmati sensasi kopi berkualitas tinggi dengan Bubuk Kopi Nikmat Gurih, pilihan terbaik bagi para pecinta kopi yang mengutamakan rasa dan kelezatan! Dibuat dari biji kopi pilihan yang diproses secara hati-hati, bubuk kopi ini memberikan rasa yang kaya, gurih, dan nikmat. Dapatkan pengalaman kopi premium, cocok untuk dinikmati kapan saja.",
+    deskripsi: "Nikmati sensasi kopi berkualitas tinggi dengan Bubuk Kopi Nikmat Gurih, pilihan terbaik bagi para pecinta kopi yang mengutamakan rasa dan kelezatan! Dibuat dari biji kopi pilihan yang diproses secara hati-hati, bubuk kopi ini memberikan rasa yang kaya, gurih, dan nikmat. Dapatkan pengalaman kopi premium, cocok untuk dinikmati kapan saja."
   },
   "5": { 
     nama: "Kopi Bubuk Robusta", 
     varianTersedia: "Ukuran 500 gram",
-    stok: 4, // STOK ADA
+    stok: 4, 
     harga: 35000, 
     hargaCoret: 40000, 
     gambar: ["img/produk-5/semendo1.jpg"], 
@@ -126,7 +142,7 @@ const dataProduk = {
   "6": { 
     nama: "TWS Warna Hitam", 
     varianTersedia: "Warna Hitam",
-    stok: 7, // STOK ADA
+    stok: 7, 
     harga: 55000, 
     hargaCoret: 60000, 
     gambar: ["img/produk-6/twshitam1.jpg", "img/produk-6/twshitam2.jpg", "img/produk-6/twshitam3.jpg", "img/produk-6/twshitam4.jpg", "img/produk-6/twshitam5.jpg", "img/produk-6/twshitam6.jpg", "img/produk-6/twshitam7.jpg", "img/produk-6/twshitam8.jpg", "img/produk-6/twshitam9.jpg", "img/produk-6/twshitam10.jpg"], 
@@ -137,7 +153,7 @@ const dataProduk = {
   "7": { 
     nama: "Dress Anak Cewek (STOK KOSONG)", 
     varianTersedia: "Motif Kucing",
-    stok: 0, // STOK KOSONG
+    stok: 0, 
     harga: 12345, 
     hargaCoret: 67899, 
     gambar: ["img/produk-7/dresanak1.jpg", "img/produk-7/dresanak2.jpg", "img/produk-7/dresanak3.jpg", "img/produk-7/dresanak4.jpg", "img/produk-7/dresanak5.jpg", "img/produk-7/dresanak6.jpg", "img/produk-7/dresanak7.jpg", "img/produk-7/dresanak8.jpg"], 
@@ -148,7 +164,7 @@ const dataProduk = {
   "8": { 
     nama: "TWS Warna Putih (STOK KOSONG)", 
     varianTersedia: "Warna Putih",
-    stok: 0, // STOK KOSONG
+    stok: 0, 
     harga: 55000, 
     hargaCoret: 60000, 
     gambar: ["img/produk-8/putih1.jpg"], 
@@ -159,7 +175,7 @@ const dataProduk = {
   "9": { 
     nama: "Jam Tangan LED (STOK KOSONG)", 
     varianTersedia: "Warna Hitam",
-    stok: 0, // STOK KOSONG
+    stok: 0, 
     harga: 40000, 
     hargaCoret: 48000, 
     gambar: ["img/produk-9/jamtangan1.jpg", "img/produk-9/jamtangan2.jpg"], 
@@ -170,20 +186,20 @@ const dataProduk = {
   "10": { 
     nama: "TWS Warna Putih (STOK KOSONG)", 
     varianTersedia: "Warna Putih",
-    stok: 0, // STOK KOSONG
+    stok: 0, 
     harga: 55000, 
     hargaCoret: 60000, 
     gambar: ["img/produk-8/putih1.jpg"], 
     rating: "4.8", 
     terjual: "01 pcs", 
     deskripsi: "TWS Earbuds terbaru" 
-  },
+  }
 };
 
-// GANTI nomor WA lu di sini bro
-const nomorWA = "6283879387000"; // tanpa +
-
-// Pindahkan arrGambar ke sini agar bisa diakses oleh fungsi zoom
+// ==========================================
+// 2. LOGIKA UTAMA PRODUK MANUAL
+// ==========================================
+const nomorWA = "6283879387000"; 
 let arrGambar = []; 
 
 function getId() {
@@ -191,15 +207,14 @@ function getId() {
   return params.get('id');
 }
 
-// =========================================================
-// 2. LOGIKA PRODUK LAMA (MANUAL) - HARUS MUNCUL SEMPURNA
-// =========================================================
-} else if (produk) { 
+const id = getId();
+const produk = dataProduk[id];
+
+if (produk) { 
   
   document.getElementById("productName").innerHTML = produk.nama + (produk.varianTersedia ? '<br><span style="font-size:13px; color:#0052cc; font-weight:600;">Varian: ' + produk.varianTersedia + '</span>' : '');
   document.getElementById('productPrice').textContent = `Rp${produk.harga.toLocaleString('id-ID')}`;
 
-  // Masukkan data gambar ke variabel global tadi
   arrGambar = produk.gambar;
   if(!Array.isArray(arrGambar)) arrGambar = [arrGambar];
 
@@ -218,13 +233,7 @@ function getId() {
     dots.innerHTML += `<span class="dot ${i===0?'active':''}"></span>`;
   });
 
-// =========================================================
-// 3. LOGIKA JIKA PRODUK BENAR-BENAR TIDAK ADA DI DATA
-// =========================================================
-} else {
-  document.body.innerHTML = '<h1 style="text-align:center;padding:50px">Produk tidak ditemukan</h1>';
-}
-
+  // Slider Swipe
   let index = 0;
   let startX = 0;
   slides.addEventListener('touchstart', e => startX = e.touches[0].clientX);
@@ -236,44 +245,43 @@ function getId() {
     document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active', i===index));
   });
 
+  // Harga Coret & Diskon
   if(produk.hargaCoret){
     document.getElementById('productOldPrice').textContent = `Rp${produk.hargaCoret.toLocaleString('id-ID')}`;
     const diskonPersen = Math.round((1 - produk.harga / produk.hargaCoret) * 100);
     document.getElementById('productDiscount').textContent = `-${diskonPersen}%`;
   }
 
- // TOMBOL WA SATUAN + CEK STOK KOSONG
-const btnWA = document.getElementById('waBtn');
-
-if(produk.stok === 0 || produk.nama.includes("STOK KOSONG")){
-  btnWA.innerHTML = "Stok Kosong";
-  btnWA.style.background = "#cccccc";
-  btnWA.onclick = () => {
-    alert("Maaf, produk ini stoknya kosong 😔");
+  // Tombol WA & Cek Stok
+  const btnWA = document.getElementById('waBtn');
+  if(produk.stok === 0 || produk.nama.includes("STOK KOSONG")){
+    btnWA.innerHTML = "Stok Kosong";
+    btnWA.style.background = "#cccccc";
+    btnWA.onclick = () => {
+      alert("Maaf, produk ini stoknya kosong 😔");
+    }
+  } else {
+    btnWA.innerHTML = "Beli via WhatsApp";
+    btnWA.style.background = "#25D366";
+    btnWA.onclick = () => {
+      const pesan = `Halo ALFA Online Shopping 🙏%0A%0A` +
+                    `Saya mau pesan:%0A` +
+                    `*${produk.nama}*%0A` +
+                    `Harga: Rp ${produk.harga.toLocaleString('id-ID')}%0A` +
+                    `Jumlah: 1 pcs%0A%0A` +
+                    `Terima kasih`;
+      const urlWA = `https://wa.me/${nomorWA}?text=${pesan}`;
+      window.open(urlWA, '_blank');
+    }
   }
+
 } else {
-  btnWA.innerHTML = "Beli via WhatsApp";
-  btnWA.style.background = "#25D366";
-  btnWA.onclick = () => {
-    const pesan = `Halo ALFA Online Shopping 🙏%0A%0A` +
-                  `Saya mau pesan:%0A` +
-                  `*${produk.nama}*%0A` +
-                  `Harga: Rp ${produk.harga.toLocaleString('id-ID')}%0A` +
-                  `Jumlah: 1 pcs%0A%0A` +
-                  `Terima kasih`;
-    const urlWA = `https://wa.me/${nomorWA}?text=${pesan}`;
-    window.open(urlWA, '_blank');
-  }
-}
-
-  // ==========================================
-  // KONDISI 3: PRODUK TIDAK DITEMUKAN
-  // ==========================================
   document.body.innerHTML = '<h1 style="text-align:center;padding:50px">Produk tidak ditemukan</h1>';
 }
-     
-// ============ FITUR ZOOM GALERI ============
 
+// ==========================================
+// 3. FITUR ZOOM GALERI
+// ==========================================
 let zoomIndex = 0; 
 
 function bukaZoom(idx) {
@@ -281,7 +289,6 @@ function bukaZoom(idx) {
   tampilkanGambarZoom();
   document.getElementById('overlayZoom').style.display = 'flex';
   
-  // Pasang event listener swipe HANYA saat overlay dibuka
   const overlayEl = document.getElementById('overlayZoom');
   overlayEl.ontouchstart = (e) => {
     if (e.touches.length === 1) {
@@ -291,11 +298,9 @@ function bukaZoom(idx) {
       overlayEl.dataset.isSwiping = "false";
     }
   };
-  
   overlayEl.ontouchmove = (e) => {
     if (e.touches.length > 1) overlayEl.dataset.isSwiping = "false";
   };
-  
   overlayEl.ontouchend = (e) => {
     if (overlayEl.dataset.isSwiping === "true" && e.changedTouches.length === 1) {
       let diff = e.changedTouches[0].clientX - parseFloat(overlayEl.dataset.startX);
@@ -309,55 +314,27 @@ function bukaZoom(idx) {
 function tampilkanGambarZoom() {
   const imgZoom = document.getElementById('gambarZoom');
   imgZoom.src = arrGambar[zoomIndex]; 
-  
   document.getElementById('prevZoom').style.display = zoomIndex === 0 ? 'none' : 'block';
   document.getElementById('nextZoom').style.display = zoomIndex === arrGambar.length - 1 ? 'none' : 'block';
   document.getElementById('zoomIndicator').textContent = `${zoomIndex + 1} / ${arrGambar.length}`;
 }
 
 function nextZoom() {
-  if (zoomIndex < arrGambar.length - 1) {
-    zoomIndex++;
-    tampilkanGambarZoom();
-  }
+  if (zoomIndex < arrGambar.length - 1) { zoomIndex++; tampilkanGambarZoom(); }
 }
 
 function prevZoom() {
-  if (zoomIndex > 0) {
-    zoomIndex--;
-    tampilkanGambarZoom();
-  }
+  if (zoomIndex > 0) { zoomIndex--; tampilkanGambarZoom(); }
 }
 
 function tutupZoom() {
   document.getElementById('overlayZoom').style.display = 'none';
-  // Bersihkan event listener saat ditutup agar tidak mengganggu pinch zoom browser
   const overlayEl = document.getElementById('overlayZoom');
   overlayEl.ontouchstart = null;
   overlayEl.ontouchmove = null;
   overlayEl.ontouchend = null;
-    }
+}
 </script>
 
-  <!-- Overlay Zoom Gambar -->
-<div id="overlayZoom" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; justify-content:center; align-items:center; flex-direction:column; touch-action:pan-y pinch-zoom;">
-  
-  <!-- Tombol Tutup (X) -->
-  <span onclick="tutupZoom()" style="position:absolute; top:20px; right:25px; color:white; font-size:35px; font-weight:bold; cursor:pointer; z-index:10;">&times;</span>
-  
-  <!-- Tombol Kiri (<) -->
-  <span id="prevZoom" onclick="prevZoom()" style="position:absolute; left:15px; top:50%; transform:translateY(-50%); font-size:40px; color:white; cursor:pointer; user-select:none; background:rgba(0,0,0,0.4); padding:5px 15px; border-radius:50%; z-index:10;">&#10094;</span>
-  
-  <!-- Gambar Zoom -->
-  <img id="gambarZoom" src="" style="max-width:90%; max-height:80%; object-fit:contain;">
-  
-  <!-- Tombol Kanan (>) -->
-  <span id="nextZoom" onclick="nextZoom()" style="position:absolute; right:15px; top:50%; transform:translateY(-50%); font-size:40px; color:white; cursor:pointer; user-select:none; background:rgba(0,0,0,0.4); padding:5px 15px; border-radius:50%; z-index:10;">&#10095;</span>
-  
-  <!-- Indikator Halaman -->
-  <div id="zoomIndicator" style="position:absolute; bottom:30px; color:white; font-size:16px; background:rgba(0,0,0,0.5); padding:5px 15px; border-radius:15px;"></div>
-
-</div>
-
-  </body>
+</body>
 </html>
