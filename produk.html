@@ -295,10 +295,12 @@ if(produk.stok === 0 || produk.nama.includes("STOK KOSONG")){
   }
 }
 
-} else {
+  // ==========================================
+  // KONDISI 3: PRODUK TIDAK DITEMUKAN
+  // ==========================================
   document.body.innerHTML = '<h1 style="text-align:center;padding:50px">Produk tidak ditemukan</h1>';
 }
-
+     
 // ============ FITUR ZOOM GALERI ============
 
 let zoomIndex = 0; 
